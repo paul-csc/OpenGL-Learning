@@ -6,6 +6,7 @@ set(SOURCES
     src/index_buffer.cpp
     src/vertex_array.cpp
     src/vertex_buffer.cpp
+    src/texture.cpp
 
     vendor/stb/stb_image.h
     src/renderer.h
@@ -13,6 +14,7 @@ set(SOURCES
     src/index_buffer.h
     src/vertex_array.h
     src/vertex_buffer.h
+    src/texture.h
     src/vertex_buffer_layout.h
 )
 
@@ -31,7 +33,7 @@ target_link_libraries(Core PRIVATE
     glm
 )
 
-target_include_directories(Core PRIVATE src)
+target_include_directories(Core PRIVATE "src" "vendor/stb")
 
 # Set working directory for VS debugger
 set_target_properties(Core PROPERTIES

@@ -12,15 +12,15 @@ class Shader {
     void Bind() const;
     void Unbind() const;
 
-    void SetUniformi(const std::string& name, int value);
-    void SetUniformf(const std::string& name, float value);
+    void SetUniform1i(const std::string& name, int value);
+    void SetUniform1f(const std::string& name, float value);
     void SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3);
 
   private:
-    std::string ReadFileAsString(const std::string& filepath);
-    unsigned int CompileShader(unsigned int type, const std::string& source);
-    unsigned int CreateShader(const std::string& vertSource, const std::string& fragSource);
-    unsigned int GetUniformLocation(const std::string& name);
+    static std::string ReadFileAsString(const std::string& filepath);
+    static unsigned int CompileShader(unsigned int type, const std::string& source);
+    static unsigned int CreateShader(const std::string& vertSource, const std::string& fragSource);
+    int GetUniformLocation(const std::string& name);
 
     unsigned int m_rendererID;
     std::unordered_map<std::string, int> m_uniformLocationCache;

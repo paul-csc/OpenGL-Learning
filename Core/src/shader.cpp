@@ -23,11 +23,11 @@ void Shader::Unbind() const {
     glUseProgram(0);
 }
 
-void Shader::SetUniformi(const std::string& name, int value) {
+void Shader::SetUniform1i(const std::string& name, int value) {
     glUniform1i(GetUniformLocation(name), value);
 }
 
-void Shader::SetUniformf(const std::string& name, float value) {
+void Shader::SetUniform1f(const std::string& name, float value) {
     glUniform1f(GetUniformLocation(name), value);
 }
 
@@ -93,7 +93,7 @@ unsigned int Shader::CreateShader(const std::string& vertSource, const std::stri
     return program;
 }
 
-unsigned int Shader::GetUniformLocation(const std::string& name) {
+int Shader::GetUniformLocation(const std::string& name) {
     if (m_uniformLocationCache.contains(name)) {
         return m_uniformLocationCache[name];
     }

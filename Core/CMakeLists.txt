@@ -1,10 +1,19 @@
 set(SOURCES
+    vendor/stb/stb_image.cpp
     src/main.cpp
     src/renderer.cpp
     src/shader.cpp
     src/index_buffer.cpp
     src/vertex_array.cpp
     src/vertex_buffer.cpp
+
+    vendor/stb/stb_image.h
+    src/renderer.h
+    src/shader.h
+    src/index_buffer.h
+    src/vertex_array.h
+    src/vertex_buffer.h
+    src/vertex_buffer_layout.h
 )
 
 add_executable(Core ${SOURCES})

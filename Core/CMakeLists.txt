@@ -1,19 +1,3 @@
-cmake_minimum_required(VERSION 3.21)
-project(Core LANGUAGES CXX)
-
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-# Find packages installed via vcpkg
-find_package(OpenGL REQUIRED)
-find_package(glfw3 CONFIG REQUIRED)
-find_package(glad CONFIG REQUIRED)
-find_package(glm CONFIG REQUIRED)
-
-# stb is header-only
-find_path(STB_INCLUDE_DIRS "stb_image.h")
-
-# Source files
 set(SOURCES
     src/main.cpp
     src/renderer.cpp
@@ -23,18 +7,24 @@ set(SOURCES
     src/vertex_buffer.cpp
 )
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+add_executable(Core ${SOURCES})
 
-# Include directories
-target_include_directories(${PROJECT_NAME} PRIVATE
-    ${STB_INCLUDE_DIRS}
-    src
+# Match VS filters to directory structure on disk
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${SOURCES})
+
+add_compile_definitions(
+    GLFW_INCLUDE_NONE
 )
 
-# Link libraries
-target_link_libraries(${PROJECT_NAME} PRIVATE
-    OpenGL::GL
+target_link_libraries(Core PRIVATE
     glfw
-    glad::glad
-    glm::glm
+    glad
+    glm
+)
+
+target_include_directories(Core PRIVATE src)
+
+# Set working directory for VS debugger
+set_target_properties(Core PROPERTIES
+    VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/Core"
 )

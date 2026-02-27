@@ -1,4 +1,5 @@
 #include "shader.h"
+#include <glm/gtc/type_ptr.hpp>
 
 #include <iostream>
 #include <vector>
@@ -33,6 +34,10 @@ void Shader::SetUniform1f(const std::string& name, float value) {
 
 void Shader::SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3) {
     glUniform4f(GetUniformLocation(name), v0, v1, v2, v3);
+}
+
+void Shader::SetUniformMat4f(const std::string& name, const glm::mat4& mat) {
+    glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, glm::value_ptr(mat));
 }
 
 std::string Shader::ReadFileAsString(const std::string& filepath) {

@@ -1,24 +1,21 @@
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "shader.h"
 #include "index_buffer.h"
 #include "vertex_buffer.h"
 #include "vertex_buffer_layout.h"
 #include "vertex_array.h"
-#include "renderer.h"
 #include "texture.h"
 
 #include <iostream>
 
-constexpr int WINDOW_WIDTH = 600;
-constexpr int WINDOW_HEIGHT = 600;
+static constexpr int WINDOW_WIDTH = 600;
+static constexpr int WINDOW_HEIGHT = 600;
 
-void FramebufferSizeCallback(GLFWwindow* window, int width, int height) {
-    glViewport(0, 0, width, height);
-}
-
-void ProcessInput(GLFWwindow* window) {
+static void ProcessInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     }
@@ -33,68 +30,151 @@ int main() {
     GLFWwindow* window =
         glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "LearnOpenGL", nullptr, nullptr);
     if (window == nullptr) {
-        std::cout << "Failed to create GLFW window" << std::endl;
+        std::cout << "Failed to create GLFW window\n";
         glfwTerminate();
         return -1;
     }
+
     glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
+    glfwSetFramebufferSizeCallback(
+        window, [](GLFWwindow* window, int width, int height) { glViewport(0, 0, width, height); });
     glfwSwapInterval(1);
 
     if (!gladLoadGL(glfwGetProcAddress)) {
-        std::cout << "Failed to initialize GLAD" << std::endl;
+        std::cout << "Failed to initialize GLAD\n";
         return -1;
     }
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_DEPTH_TEST);
+    // glEnable(GL_BLEND);
+    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // clang-format off
-    float vertices[] = {
-         0.5f,  0.5f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
-         0.5f, -0.5f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
-        -0.5f, -0.5f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
-        -0.5f,  0.5f,   1.0f, 0.0f, 1.0f,   0.0f, 1.0f, // top left
+    const float vertices[] = {
+        // Front face
+        -0.5f,-0.5f, 0.5f,   0.0f,0.0f,
+         0.5f,-0.5f, 0.5f,   1.0f,0.0f,
+         0.5f, 0.5f, 0.5f,   1.0f,1.0f,
+        -0.5f, 0.5f, 0.5f,   0.0f,1.0f,
+
+        // Back face
+        -0.5f,-0.5f,-0.5f,   1.0f,0.0f,
+         0.5f,-0.5f,-0.5f,   0.0f,0.0f,
+         0.5f, 0.5f,-0.5f,   0.0f,1.0f,
+        -0.5f, 0.5f,-0.5f,   1.0f,1.0f,
+
+        // Left face
+        -0.5f,-0.5f,-0.5f,   0.0f,0.0f,
+        -0.5f,-0.5f, 0.5f,   1.0f,0.0f,
+        -0.5f, 0.5f, 0.5f,   1.0f,1.0f,
+        -0.5f, 0.5f,-0.5f,   0.0f,1.0f,
+
+        // Right face
+         0.5f,-0.5f,-0.5f,   1.0f,0.0f,
+         0.5f,-0.5f, 0.5f,   0.0f,0.0f,
+         0.5f, 0.5f, 0.5f,   0.0f,1.0f,
+         0.5f, 0.5f,-0.5f,   1.0f,1.0f,
+
+        // Top face
+        -0.5f, 0.5f, 0.5f,   0.0f,0.0f,
+         0.5f, 0.5f, 0.5f,   1.0f,0.0f,
+         0.5f, 0.5f,-0.5f,   1.0f,1.0f,
+        -0.5f, 0.5f,-0.5f,   0.0f,1.0f,
+
+        // Bottom face
+        -0.5f,-0.5f, 0.5f,   1.0f,1.0f,
+         0.5f,-0.5f, 0.5f,   0.0f,1.0f,
+         0.5f,-0.5f,-0.5f,   0.0f,0.0f,
+        -0.5f,-0.5f,-0.5f,   1.0f,0.0f,
     };
 
-    unsigned int indices[] = {
-        0, 1, 3,
-        1, 2, 3,
+    const unsigned int indices[] = {
+        // Front face
+        0, 1, 2,
+        2, 3, 0,
+
+        // Back face
+        4, 5, 6,
+        6, 7, 4,
+
+        // Left face
+        8, 9,10,
+       10,11, 8,
+
+        // Right face
+       12,13,14,
+       14,15,12,
+
+        // Top face
+       16,17,18,
+       18,19,16,
+
+        // Bottom face
+       20,21,22,
+       22,23,20
     };
     // clang-format on
+
+    const glm::vec3 cubePositions[] = {
+        {  0.0f,  0.0f,   0.0f },
+        {  2.0f,  5.0f, -15.0f },
+        { -1.5f, -2.2f,  -2.5f },
+        { -3.8f, -2.0f, -12.3f },
+        {  2.4f, -0.4f,  -3.5f },
+        { -1.7f,  3.0f,  -7.5f },
+        {  1.3f, -2.0f,  -2.5f },
+        {  1.5f,  2.0f,  -2.5f },
+        {  1.5f,  0.2f,  -1.5f },
+        { -1.3f,  1.0f,  -1.5f },
+    };
 
     VertexArray vao;
     VertexBuffer vbo(vertices, sizeof(vertices));
 
     VertexBufferLayout layout;
-    layout.Push<float>(2);
     layout.Push<float>(3);
     layout.Push<float>(2);
     vao.AddBuffer(vbo, layout);
 
-    IndexBuffer ibo(indices, 6);
+    IndexBuffer ibo(indices, 36);
 
     Shader shader("assets/shaders/vert.glsl", "assets/shaders/frag.glsl");
     shader.Bind();
 
-    Renderer renderer;
-
-    Texture texture1("assets/textures/bear.png");
-    Texture texture2("assets/textures/snowman.png");
+    Texture texture1("assets/textures/container.jpg");
+    Texture texture2("assets/textures/awesomeface.png");
 
     shader.SetUniform1i("uTexture1", 0);
     shader.SetUniform1i("uTexture2", 1);
 
-    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     while (!glfwWindowShouldClose(window)) {
         ProcessInput(window);
-        renderer.Clear();
+
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         texture1.Bind(0);
         texture2.Bind(1);
 
-        renderer.Draw(vao, ibo, shader);
+        glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
+        glm::mat4 projection = glm::perspective(
+            glm::radians(45.0f), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
+        shader.SetUniformMat4f("uProjection", projection);
+        shader.SetUniformMat4f("uView", view);
+
+        shader.Bind();
+        vao.Bind();
+        ibo.Bind();
+
+        for (unsigned int i = 0; i < 10; i++) {
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), cubePositions[i]);
+            model = glm::rotate(model, glm::radians(20.0f * i), glm::vec3(1.0f, 0.3f, 0.5f));
+            shader.SetUniformMat4f("uModel", model);
+
+            glDrawElements(GL_TRIANGLES, ibo.GetCount(), GL_UNSIGNED_INT, 0);
+        }
 
         glfwSwapBuffers(window);
         glfwPollEvents();

@@ -6,6 +6,7 @@ set(SOURCES
     src/vertex_array.cpp
     src/vertex_buffer.cpp
     src/texture.cpp
+    src/camera.cpp
 
     vendor/stb/stb_image.h
     src/shader.h
@@ -13,6 +14,7 @@ set(SOURCES
     src/vertex_array.h
     src/vertex_buffer.h
     src/texture.h
+    src/camera.h
     src/vertex_buffer_layout.h
 )
 
